@@ -10,7 +10,6 @@ import com.fooddelivery.response.GenericListResponse;
 import com.fooddelivery.response.OrderCreationResponse;
 import com.fooddelivery.response.OrderDetailsResponse;
 import com.fooddelivery.service.*;
-import com.fooddelivery.util.MessagingUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -74,8 +73,6 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public OrderCreationResponse createOrder(OrderCreationRequest orderCreationRequest) {
         try {
-
-            // TODO : check to see if all items belong to same restaurant or not.
 
             Long userId = orderCreationRequest.getUserId();
             Long addressId = orderCreationRequest.getAddressId();
@@ -141,7 +138,6 @@ public class OrderServiceImpl implements OrderService {
 
             BigDecimal finalOrderAmount = totalItemsValue.add(deliveryFee).add(serviceFee).subtract(discountAmount);
 
-
             OrderEntity orderEntity = new OrderEntity();
 
             orderEntity.setUserEntity(userEntity.get());
@@ -166,7 +162,8 @@ public class OrderServiceImpl implements OrderService {
             orderItemService.saveAll(orderItemsEntities);
             userWalletService.blockAmount(userId, totalItemsValue);
 
-            MessagingUtil.notifyRestaurantAboutOrder(restaurantEntity.get(), orderEntity);
+//            MessagingUtil.notifyRestaurantAboutOrder(restaurantEntity.get(), orderEntity);
+            logger.info("Notifying Restaurant about order Id " + orderEntity.getId());
 
             OrderCreationResponse response = new OrderCreationResponse(true, CommandStatus.SUCCESS);
             response.setOrderId(orderEntity.getId());
@@ -291,8 +288,8 @@ public class OrderServiceImpl implements OrderService {
 
             if (orderEntity.get().getStatus().equals(updatedOrderStatus) ||
                     orderEntity.get().getStatus().equals(Constants.ORDER_STATUS_DELIVERED) ||
-                    orderEntity.get().getStatus().equals(Constants.ORDER_STATUS_CANCELLED)
-            ) {
+                    orderEntity.get().getStatus().equals(Constants.ORDER_STATUS_CANCELLED)) {
+
                 return new BaseResponse(false, CommandStatus.CANNOT_UPDATE_ORDER_STATUS);
             }
 

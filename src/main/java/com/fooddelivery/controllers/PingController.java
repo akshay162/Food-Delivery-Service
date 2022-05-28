@@ -11,6 +11,7 @@ import javax.servlet.http.HttpServletResponse;
 @RequestMapping("/health")
 public class PingController {
 
+    // this is for service to check the health of the system.
     @GetMapping("/ping")
     public String pingResponse(HttpServletResponse response) {
         return Constants.HEALTH_CHECK_MESSAGE;

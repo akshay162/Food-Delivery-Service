@@ -45,7 +45,7 @@ public class OrderEntity extends AbstractEntity{
 
     @Column(name = "delivery_fee")
     @JsonProperty(value = "delivery_fee")
-    private BigDecimal deliveryFee; // keeping it fixed for now
+    private BigDecimal deliveryFee;
 
     @Column(name = "service_fee")
     @JsonProperty(value = "service_fee")
