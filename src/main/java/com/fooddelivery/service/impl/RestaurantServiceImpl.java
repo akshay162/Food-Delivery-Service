@@ -80,7 +80,7 @@ public class RestaurantServiceImpl implements RestaurantService {
 
             restaurantWalletService.save(restaurantWalletEntity);
 
-            return new RestaurantCreationResponse(true, CommandStatus.SUCCESS, restaurantEntity.getId());
+            return new RestaurantCreationResponse(true, CommandStatus.RESTAURANT_CREATED, restaurantEntity.getId());
         } catch (Exception e) {
             logger.error("[" + classTag + "][createRestaurant] error is : " + e.getMessage());
             return new RestaurantCreationResponse(false, CommandStatus.INTERNAL_SERVER_ERROR);
@@ -158,7 +158,7 @@ public class RestaurantServiceImpl implements RestaurantService {
                 menuItemService.saveAll(menuItemEntities);
             }
 
-            return new BaseResponse(true, CommandStatus.SUCCESS);
+            return new BaseResponse(true, CommandStatus.MENU_CREATED);
         } catch (Exception e) {
             logger.error("[" + classTag + "][addMenu] error is : " + e.getMessage());
             return new BaseResponse(false, CommandStatus.INTERNAL_SERVER_ERROR);
@@ -218,7 +218,7 @@ public class RestaurantServiceImpl implements RestaurantService {
                 menuItemService.saveAll(menuItemsToEdit);
             }
 
-            return new BaseResponse(true, CommandStatus.SUCCESS);
+            return new BaseResponse(true, CommandStatus.MENU_UPDATED);
         } catch (Exception e) {
             logger.error("[" + classTag + "][editMenu] error is : " + e.getMessage());
             return new BaseResponse(false, CommandStatus.INTERNAL_SERVER_ERROR);

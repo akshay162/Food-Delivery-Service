@@ -15,4 +15,6 @@ public interface UserWalletService {
 
     public void blockAmount(Long userId, BigDecimal amount);
 
+    public void addAmount(Long userId, BigDecimal amount);
+
 }

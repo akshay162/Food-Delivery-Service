@@ -4,6 +4,7 @@ import com.fooddelivery.constants.CommandStatus;
 import com.fooddelivery.entities.UserEntity;
 import com.fooddelivery.entities.UserWalletEntity;
 import com.fooddelivery.repository.UserRepository;
+import com.fooddelivery.response.BaseResponse;
 import com.fooddelivery.response.UserCreationResponse;
 import com.fooddelivery.service.UserService;
 import com.fooddelivery.service.UserWalletService;
@@ -57,9 +58,19 @@ public class UserServiceImpl implements UserService {
             userWalletEntity.setBlockedAmount(BigDecimal.ZERO);
             userWalletService.save(userWalletEntity);
 
-            return new UserCreationResponse(true, CommandStatus.SUCCESS, userEntity.getId());
+            return new UserCreationResponse(true, CommandStatus.USER_CREATED, userEntity.getId());
         } catch (Exception e) {
             return new UserCreationResponse(false, CommandStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @Override
+    public BaseResponse updateWalletBalance(Long userId, BigDecimal amount) {
+        try {
+            userWalletService.addAmount(userId, amount);
+            return new BaseResponse(true, CommandStatus.SUCCESS);
+        } catch (Exception e) {
+            return new BaseResponse(false, CommandStatus.INTERNAL_SERVER_ERROR);
         }
     }
 }

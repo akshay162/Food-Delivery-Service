@@ -32,4 +32,12 @@ public interface UserWalletRepository extends JpaRepository<UserWalletEntity, Lo
             " where user_id = :userId", nativeQuery = true)
     void blockAmount(@RequestParam("userId") Long userId,
                       @RequestParam("amount") BigDecimal amount);
+
+    @Modifying
+    @Transactional
+    @Query(value = "update user_wallet" +
+            " set balance = balance + :amount" +
+            " where user_id = :userId", nativeQuery = true)
+    void addAmount(@RequestParam("userId") Long userId,
+                     @RequestParam("amount") BigDecimal amount);
 }

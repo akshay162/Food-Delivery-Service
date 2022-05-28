@@ -13,4 +13,12 @@ public class CommandStatus {
 	public static final String INSUFFICIENT_BALANCE = "Insufficient Balance";
 	public static final String WRONG_RESTAURANT = "Items added from Wrong restaurant";
 	public static final String CANNOT_UPDATE_ORDER_STATUS = "Cannot update the order status";
+	public static final String ORDER_CREATED = "Order Created Successfully";
+	public static final String ORDER_STATUS_UPDATED = "Order Status Updated Successfully";
+	public static final String RESTAURANT_CREATED = "Restaurant Created Successfully";
+	public static final String MENU_CREATED = "Menu Created Successfully";
+	public static final String MENU_UPDATED = "Menu Updated Successfully";
+	public static final String USER_CREATED = "User Created Successfully";
+
+
 }

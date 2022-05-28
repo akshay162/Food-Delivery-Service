@@ -165,7 +165,7 @@ public class OrderServiceImpl implements OrderService {
 //            MessagingUtil.notifyRestaurantAboutOrder(restaurantEntity.get(), orderEntity);
             logger.info("Notifying Restaurant about order Id " + orderEntity.getId());
 
-            OrderCreationResponse response = new OrderCreationResponse(true, CommandStatus.SUCCESS);
+            OrderCreationResponse response = new OrderCreationResponse(true, CommandStatus.ORDER_CREATED);
             response.setOrderId(orderEntity.getId());
             response.setOrderStatus(orderEntity.getStatus());
 
@@ -303,7 +303,7 @@ public class OrderServiceImpl implements OrderService {
                     && orderEntity.get().getStatus().equals(Constants.ORDER_STATUS_PLACED)) {
                     // then only order can be cancelled.
                     orderRepo.updateOrderStatus(orderId, updatedOrderStatus);
-                    return new BaseResponse(true, CommandStatus.SUCCESS);
+                    return new BaseResponse(true, CommandStatus.ORDER_STATUS_UPDATED);
             }
 
             if (updatedOrderStatus.equals(Constants.ORDER_STATUS_CONFIRMED)) {
@@ -319,7 +319,7 @@ public class OrderServiceImpl implements OrderService {
 
             orderRepo.updateOrderStatus(orderId, updatedOrderStatus);
 
-            return new BaseResponse(true, CommandStatus.SUCCESS);
+            return new BaseResponse(true, CommandStatus.ORDER_STATUS_UPDATED);
         } catch (Exception e) {
             logger.error("[" + classTag + "] [updateOrderStatus] error is : " + e.getMessage());
             return new BaseResponse(false, CommandStatus.INTERNAL_SERVER_ERROR);
