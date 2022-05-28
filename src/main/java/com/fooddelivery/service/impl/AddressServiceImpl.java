@@ -23,4 +23,9 @@ public class AddressServiceImpl implements AddressService {
     public Optional<AddressEntity> getAddressById(Long addressId) {
         return addressRepo.findById(addressId);
     }
+
+    @Override
+    public AddressEntity save(AddressEntity addressEntity) {
+        return addressRepo.save(addressEntity);
+    }
 }

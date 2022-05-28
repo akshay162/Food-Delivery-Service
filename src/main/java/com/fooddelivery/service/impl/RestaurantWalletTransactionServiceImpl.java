@@ -1,7 +1,5 @@
 package com.fooddelivery.service.impl;
 
-import com.fooddelivery.entities.OrderEntity;
-import com.fooddelivery.entities.RestaurantEntity;
 import com.fooddelivery.entities.RestaurantWalletTransactionEntity;
 import com.fooddelivery.repository.RestaurantWalletTransactionRepository;
 import com.fooddelivery.service.RestaurantWalletTransactionService;
@@ -21,10 +19,10 @@ public class RestaurantWalletTransactionServiceImpl implements RestaurantWalletT
     }
 
     @Override
-    public void saveTransaction(RestaurantEntity restaurantEntity, OrderEntity orderEntity, BigDecimal amount, String transactionType) {
+    public void saveTransaction(Long restaurantId, Long orderId, BigDecimal amount, String transactionType) {
         RestaurantWalletTransactionEntity restaurantWalletTransactionEntity = new RestaurantWalletTransactionEntity();
-        restaurantWalletTransactionEntity.setRestaurantId(restaurantEntity.getId());
-        restaurantWalletTransactionEntity.setOrderId(orderEntity.getId());
+        restaurantWalletTransactionEntity.setRestaurantId(restaurantId);
+        restaurantWalletTransactionEntity.setOrderId(orderId);
         restaurantWalletTransactionEntity.setAmount(amount);
         restaurantWalletTransactionEntity.setTransactionType(transactionType);
 

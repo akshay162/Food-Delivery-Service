@@ -9,7 +9,7 @@ public class Constants {
 	public static final Integer ORDER_STATUS_READY = 2; //Order ready
 	public static final Integer ORDER_STATUS_PICKED_UP = 3; //Order on the way
 	public static final Integer ORDER_STATUS_DELIVERED = 4; //Order delivered
-	public static final Integer ORDER_STATUS_CANCELLED = 4; //Order cancelled
+	public static final Integer ORDER_STATUS_CANCELLED = 5; //Order cancelled
 
 	public static final String TRANSACTION_TYPE_CREDIT = "Credit";
 	public static final String TRANSACTION_TYPE_DEBIT = "Debit";

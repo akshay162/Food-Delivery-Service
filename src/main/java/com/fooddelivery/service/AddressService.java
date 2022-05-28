@@ -6,5 +6,7 @@ import java.util.Optional;
 
 public interface AddressService {
 
-    public Optional<AddressEntity> getAddressById(Long addressId);
+    Optional<AddressEntity> getAddressById(Long addressId);
+
+    AddressEntity save(AddressEntity addressEntity);
 }

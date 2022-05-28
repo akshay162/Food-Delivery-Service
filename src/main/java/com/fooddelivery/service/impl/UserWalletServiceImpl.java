@@ -43,4 +43,9 @@ public class UserWalletServiceImpl implements UserWalletService {
     public void addAmount(Long userId, BigDecimal amount) {
         userWalletRepo.addAmount(userId, amount);
     }
+
+    @Override
+    public void unblockAmount(Long userId, BigDecimal amount) {
+        userWalletRepo.unBlockAmount(userId, amount);
+    }
 }

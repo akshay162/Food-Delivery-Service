@@ -31,10 +31,6 @@ public class OrderEntity extends AbstractEntity{
     @JsonProperty(value = "restaurant_details")
     private RestaurantEntity restaurantEntity;
 
-    @Column(name = "is_active")
-    @JsonProperty(value = "is_active")
-    private Boolean isActive;
-
     @Column(name = "status")
     @JsonProperty(value = "status")
     private Integer status; // (Placed, Confirmed, Ready, Picked-up, Delivered, Canceled)

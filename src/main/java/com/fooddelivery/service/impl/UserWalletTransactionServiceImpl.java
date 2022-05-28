@@ -1,7 +1,5 @@
 package com.fooddelivery.service.impl;
 
-import com.fooddelivery.entities.OrderEntity;
-import com.fooddelivery.entities.UserEntity;
 import com.fooddelivery.entities.UserWalletTransactionEntity;
 import com.fooddelivery.repository.UserWalletTransactionRepository;
 import com.fooddelivery.service.UserWalletTransactionService;
@@ -21,10 +19,10 @@ public class UserWalletTransactionServiceImpl implements UserWalletTransactionSe
     }
 
     @Override
-    public void saveTransaction(UserEntity userEntity, OrderEntity orderEntity, BigDecimal amount, String transactionType) {
+    public void saveTransaction(Long userId, Long orderId, BigDecimal amount, String transactionType) {
         UserWalletTransactionEntity userWalletTransactionEntity = new UserWalletTransactionEntity();
-        userWalletTransactionEntity.setUserId(userEntity.getId());
-        userWalletTransactionEntity.setOrderId(orderEntity.getId());
+        userWalletTransactionEntity.setUserId(userId);
+        userWalletTransactionEntity.setOrderId(orderId);
         userWalletTransactionEntity.setAmount(amount);
         userWalletTransactionEntity.setTransactionType(transactionType);
 

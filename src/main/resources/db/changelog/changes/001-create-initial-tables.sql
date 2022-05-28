@@ -62,7 +62,6 @@ create table if not exists orders (
     address_id bigint references address,
     order_time bigint,
     restaurant_id bigint references restaurant,
-    is_active boolean,
     status int,
     items_cost decimal(12, 2),
     delivery_fee decimal(12, 2),

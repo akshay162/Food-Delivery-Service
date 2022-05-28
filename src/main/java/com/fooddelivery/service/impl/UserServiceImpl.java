@@ -1,13 +1,16 @@
 package com.fooddelivery.service.impl;
 
 import com.fooddelivery.constants.CommandStatus;
+import com.fooddelivery.constants.Constants;
+import com.fooddelivery.entities.AddressEntity;
+import com.fooddelivery.entities.UserAddressEntity;
 import com.fooddelivery.entities.UserEntity;
 import com.fooddelivery.entities.UserWalletEntity;
 import com.fooddelivery.repository.UserRepository;
+import com.fooddelivery.request.AddAddressRequest;
 import com.fooddelivery.response.BaseResponse;
 import com.fooddelivery.response.UserCreationResponse;
-import com.fooddelivery.service.UserService;
-import com.fooddelivery.service.UserWalletService;
+import com.fooddelivery.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -19,14 +22,22 @@ import java.util.Optional;
 public class UserServiceImpl implements UserService {
 
     private UserRepository userRepo;
-
     private UserWalletService userWalletService;
+    private UserWalletTransactionService userWalletTransactionService;
+    private AddressService addressService;
+    private UserAddressService userAddressService;
 
     @Autowired
     public UserServiceImpl(UserRepository userRepo,
-                           UserWalletService userWalletService) {
+                           UserWalletService userWalletService,
+                           UserWalletTransactionService userWalletTransactionService,
+                           AddressService addressService,
+                           UserAddressService userAddressService) {
         this.userRepo = userRepo;
         this.userWalletService = userWalletService;
+        this.userWalletTransactionService = userWalletTransactionService;
+        this.addressService = addressService;
+        this.userAddressService = userAddressService;
     }
 
     @Override
@@ -68,7 +79,44 @@ public class UserServiceImpl implements UserService {
     public BaseResponse updateWalletBalance(Long userId, BigDecimal amount) {
         try {
             userWalletService.addAmount(userId, amount);
+            userWalletTransactionService.saveTransaction(userId, null, amount, Constants.TRANSACTION_TYPE_CREDIT);
             return new BaseResponse(true, CommandStatus.SUCCESS);
+        } catch (Exception e) {
+            return new BaseResponse(false, CommandStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @Transactional
+    @Override
+    public BaseResponse addAddress(AddAddressRequest addAddressRequest) {
+        try {
+            Long userId = addAddressRequest.getUserId();
+            Optional<UserEntity> userEntity = userRepo.findById(userId);
+
+            if (!userEntity.isPresent()) {
+                return new BaseResponse(false, CommandStatus.USER_NOT_FOUND);
+            }
+
+            if (addAddressRequest.getStreet() == null || addAddressRequest.getCity() == null
+                    || addAddressRequest.getState() == null || addAddressRequest.getCountry() == null
+                    || addAddressRequest.getZipcode() == null) {
+                return new BaseResponse(false, CommandStatus.INCOMPLETE_ADDRESS_DETAILS);
+            }
+
+            AddressEntity addressEntity = new AddressEntity();
+            addressEntity.setStreet(addAddressRequest.getStreet());
+            addressEntity.setCity(addAddressRequest.getCity());
+            addressEntity.setState(addAddressRequest.getState());
+            addressEntity.setCountry(addAddressRequest.getCountry());
+            addressEntity.setZipcode(addAddressRequest.getZipcode());
+            addressEntity = addressService.save(addressEntity);
+
+            UserAddressEntity userAddressEntity = new UserAddressEntity();
+            userAddressEntity.setUserEntity(userEntity.get());
+            userAddressEntity.setAddressEntity(addressEntity);
+            userAddressService.save(userAddressEntity);
+
+            return new BaseResponse(true, CommandStatus.ADDRESS_ADDED);
         } catch (Exception e) {
             return new BaseResponse(false, CommandStatus.INTERNAL_SERVER_ERROR);
         }

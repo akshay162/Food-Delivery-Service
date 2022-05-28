@@ -144,7 +144,6 @@ public class OrderServiceImpl implements OrderService {
             orderEntity.setRestaurantEntity(restaurantEntity.get());
             orderEntity.setAddressEntity(addressEntity.get());
             orderEntity.setOrderTimeEpoch(System.currentTimeMillis());
-            orderEntity.setIsActive(true);
             orderEntity.setStatus(Constants.ORDER_STATUS_PLACED);
             orderEntity.setDeliveryFee(deliveryFee);
             orderEntity.setServiceFee(serviceFee);
@@ -277,9 +276,19 @@ public class OrderServiceImpl implements OrderService {
     public BaseResponse updateOrderStatus(Long orderId, Integer updatedOrderStatus, Long userId) {
         try {
 
+            // checking if the status to be updated is out of bounds.
+            if (updatedOrderStatus < Constants.ORDER_STATUS_PLACED || updatedOrderStatus > Constants.ORDER_STATUS_CANCELLED) {
+                return new BaseResponse(false, CommandStatus.BAD_REQUEST);
+            }
+
             Optional<OrderEntity> orderEntity = orderRepo.findById(orderId);
             if (!orderEntity.isPresent()) {
-                return new BaseResponse(false, CommandStatus.BAD_REQUEST);
+                return new BaseResponse(false, CommandStatus.ORDER_NOT_FOUND);
+            }
+
+            if (!updatedOrderStatus.equals(Constants.ORDER_STATUS_CANCELLED) &&
+                  updatedOrderStatus != orderEntity.get().getStatus() + 1) {
+                return new BaseResponse(false, CommandStatus.CANNOT_UPDATE_ORDER_STATUS);
             }
 
             /* checking if the userId passed belongs to either the user who has ordered
@@ -298,12 +307,16 @@ public class OrderServiceImpl implements OrderService {
                 return new BaseResponse(false, CommandStatus.UNAUTHORIZED);
             }
 
-            // order can only be canceled if it is not confirmed.
-            if (updatedOrderStatus.equals(Constants.ORDER_STATUS_CANCELLED)
-                    && orderEntity.get().getStatus().equals(Constants.ORDER_STATUS_PLACED)) {
+            // order can only be cancelled if it is not confirmed.
+            if (updatedOrderStatus.equals(Constants.ORDER_STATUS_CANCELLED)) {
+                if (orderEntity.get().getStatus().equals(Constants.ORDER_STATUS_PLACED)) {
                     // then only order can be cancelled.
+                    revertBlockedAmount(orderEntity.get());
                     orderRepo.updateOrderStatus(orderId, updatedOrderStatus);
                     return new BaseResponse(true, CommandStatus.ORDER_STATUS_UPDATED);
+                } else {
+                    return new BaseResponse(false, CommandStatus.ORDER_CANNOT_BE_CANCELLED);
+                }
             }
 
             if (updatedOrderStatus.equals(Constants.ORDER_STATUS_CONFIRMED)) {
@@ -340,14 +353,36 @@ public class OrderServiceImpl implements OrderService {
                 userWalletService.deductAmount(orderEntity.getUserEntity().getId(), orderAmount);
                 restaurantWalletService.creditAmount(orderEntity.getRestaurantEntity().getId(), orderAmount);
 
-                userWalletTransactionService.saveTransaction(userWalletEntity.getUserEntity(),
-                        orderEntity, orderAmount, Constants.TRANSACTION_TYPE_DEBIT);
-                restaurantWalletTransactionService.saveTransaction(orderEntity.getRestaurantEntity(), orderEntity,
-                        orderAmount, Constants.TRANSACTION_TYPE_CREDIT);
+                userWalletTransactionService.saveTransaction(userWalletEntity.getUserEntity().getId(),
+                        orderEntity.getId(), orderAmount, Constants.TRANSACTION_TYPE_DEBIT);
+                restaurantWalletTransactionService.saveTransaction(orderEntity.getRestaurantEntity().getId(),
+                        orderEntity.getId(), orderAmount, Constants.TRANSACTION_TYPE_CREDIT);
 
                 logger.info("Amount of " + orderAmount + " Deducted from User " + orderEntity.getUserEntity().getEmail() + "" +
                         " and credited to restaurant " + orderEntity.getRestaurantEntity().getName() +
                         " for Order Id = " + orderEntity.getId());
+
+                return true;
+            } else {
+                return false;
+            }
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    @Transactional
+    private Boolean revertBlockedAmount(OrderEntity orderEntity) {
+        try {
+            BigDecimal orderAmount = orderEntity.getFinalOrderAmount();
+
+            UserWalletEntity userWalletEntity = userWalletService.getUserWalletDetails(orderEntity.getUserEntity());
+
+            // if blocked amount >= orderAmount
+            if ( orderEntity.getStatus().equals(Constants.ORDER_STATUS_PLACED)
+                    && userWalletEntity.getBlockedAmount().compareTo(BigDecimal.ZERO)> 0 &&
+                    (userWalletEntity.getBlockedAmount().subtract(orderAmount).compareTo(BigDecimal.ZERO)) >= 0) {
+                userWalletService.unblockAmount(orderEntity.getUserEntity().getId(), orderAmount);
 
                 return true;
             } else {

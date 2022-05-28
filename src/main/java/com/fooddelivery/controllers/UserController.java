@@ -1,5 +1,6 @@
 package com.fooddelivery.controllers;
 
+import com.fooddelivery.request.AddAddressRequest;
 import com.fooddelivery.response.BaseResponse;
 import com.fooddelivery.response.UserCreationResponse;
 import com.fooddelivery.service.UserService;
@@ -29,5 +30,10 @@ public class UserController {
     public BaseResponse updateWalletBalance(@RequestParam(value = "user_id") Long userId,
                                             @RequestParam(value = "amount") BigDecimal amount) {
         return userService.updateWalletBalance(userId, amount);
+    }
+
+    @PostMapping(value = "/add-address")
+    public BaseResponse addAddress(@RequestBody AddAddressRequest addAddressRequest) {
+        return userService.addAddress(addAddressRequest);
     }
 }
